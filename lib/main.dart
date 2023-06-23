@@ -5,6 +5,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,6 +26,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final TextEditingController commentController = TextEditingController();
   String comment = '';
 
   void _showAddCommentDialog() {
@@ -39,6 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
+                  controller: commentController,
                   onChanged: (value) {
                     setState(() {
                       comment = value;
@@ -129,6 +132,31 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
+          Expanded(
+              child: ListView.builder(
+              itemCount: 1,
+              itemBuilder: (context,index){
+                return Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: AssetImage('assets/images/card.jpg'),
+
+                    ),
+                    title: Row(
+                      children: [
+                        Text('comment description'),
+                      ],
+                    ),
+                    trailing: InkWell(
+                        onTap: _showAddCommentDialog,
+                        child: Icon(Icons.add)),
+
+                  ),
+                );
+              })
+          ),
+          Divider(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
