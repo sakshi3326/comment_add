@@ -1,8 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
-void main() {
+import 'controllers/comment_controller.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
 
@@ -26,7 +35,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController commentController = TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
+  CommentController commentController = Get.put(CommentController());
+
   String comment = '';
 
   void _showAddCommentDialog() {
@@ -41,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
-                  controller: commentController,
+                  controller: _commentController,
                   onChanged: (value) {
                     setState(() {
                       comment = value;
@@ -64,9 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
-                onPressed: () {
-
-                },
+                onPressed: () => commentController.postComment(_commentController.text),
                 child: Text('Add'),
               ),
             ],
@@ -78,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    commentController.updatePostId();
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,28 +143,33 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           Expanded(
-              child: ListView.builder(
-              itemCount: 1,
-              itemBuilder: (context,index){
-                return Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: AssetImage('assets/images/card.jpg'),
+              child: Obx(
+                      () {
+                  return ListView.builder(
+                  itemCount: commentController.comments.length,
+                  itemBuilder: (context,index){
+                    final comment = commentController.comments[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: AssetImage('assets/images/card.jpg'),
 
-                    ),
-                    title: Row(
-                      children: [
-                        Text('comment description'),
-                      ],
-                    ),
-                    trailing: InkWell(
-                        onTap: _showAddCommentDialog,
-                        child: Icon(Icons.add)),
+                        ),
+                        title: Row(
+                          children: [
+                            Text('comment description'),
+                          ],
+                        ),
+                        trailing: InkWell(
+                            onTap: _showAddCommentDialog,
+                            child: Icon(Icons.add)),
 
-                  ),
-                );
-              })
+                      ),
+                    );
+                  });
+                }
+              )
           ),
           Divider(),
         ],
@@ -184,3 +199,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+
